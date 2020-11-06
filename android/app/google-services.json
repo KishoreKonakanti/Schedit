@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "1052907652732",
+    "firebase_url": "https://schedit-4b8a8.firebaseio.com",
+    "project_id": "schedit-4b8a8",
+    "storage_bucket": "schedit-4b8a8.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1052907652732:android:a4427126adf877b1b82bf9",
+        "android_client_info": {
+          "package_name": "com.sigmalytics.schedit"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1052907652732-b9onfra9mr4mi92mi7t6dubmbud3kpt0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDNO54WCQY5Ts2GZQ6QWSeq71pc2SzsmIM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1052907652732-b9onfra9mr4mi92mi7t6dubmbud3kpt0.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
