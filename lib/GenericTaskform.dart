@@ -3,16 +3,18 @@ import 'package:scheduler/Task.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:searchable_dropdown/searchable_dropdown.dart';
-
-import 'Users.dart';
 
 class TaskForm extends StatefulWidget {
   Task newTask;
+  TaskForm(Task task){
+    if (task != null){
+      newTask = task;
+    }
+  }
   @override
   State<TaskForm> createState() {
     // TODO: implement createState
-    return TaskState();
+    return TaskState(this.newTask);
   }
 }
 
@@ -26,25 +28,27 @@ class TaskState extends State<TaskForm> {
 
   double spacing = 50.0;
 
-  Task newtask;
+  Task _thisTask;
   var _taskName = null;
   var _taskDesc = null;
   var _assignedTo = 'Rajesh';
   var _cclist = null;
   var _deadline = null;
-  List<DropdownMenuItem> _userlist;
-  final dbinstance = FirebaseFirestore.instance;
+
+  TaskState(Task thistask){
+    if (thistask != null){
+      this._thisTask = thistask;
+    }
+  }
 
 
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
+    String title, taskname, taskdesc, assignedto, cclist, status,
+    if(this._thisTask == null){
 
-    Users users = new Users();
-    this._userlist = users.getUsers();
-
-    assert(this._userlist != null,'Problem in reading user names.. Please try later');
-
+    }
     return Form(
         key: _formkey,
         child: Scaffold(
@@ -55,7 +59,7 @@ class TaskState extends State<TaskForm> {
                 child: Container(
                     padding: EdgeInsets.all(15.0),
                     child: Column(
-                        //mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      //mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: <Widget>[
                           TextFormField(
                               controller: _taskNamectrl,
@@ -110,52 +114,46 @@ class TaskState extends State<TaskForm> {
                               ]),
                           SizedBox(width: this.spacing),
                           Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children:[
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children:[
 
-                            RaisedButton(
-                            child: const Text('Create Task'),
-                            onPressed: () {
-                              print('**********************************');
-                              print('Task creation started');
-                              if (_formkey.currentState.validate()) {
-                                // final snackbar = SnackBar(content: Text('Saving Data'));
-                                // _scafkey.currentState
-                                //     .showSnackBar(snackbar);
-                                // Scaffold.of(context)
-                                //     .showSnackBar(SnackBar(content: Text('Saving Data'),));
-                                _saveTask();
-                                print('Task creation completed... Popping the screen');
+                                RaisedButton(
+                                  child: const Text('Create Task'),
+                                  onPressed: () {
+                                    print('**********************************');
+                                    print('Task creation started');
+                                    if (_formkey.currentState.validate()) {
+                                      // final snackbar = SnackBar(content: Text('Saving Data'));
+                                      // _scafkey.currentState
+                                      //     .showSnackBar(snackbar);
+                                      // Scaffold.of(context)
+                                      //     .showSnackBar(SnackBar(content: Text('Saving Data'),));
+                                      _saveTask();
+                                      print('Task creation completed... Popping the screen');
 
-                              } else {
-                                print('Form validation failed');
-                                // Scaffold.of(context).showSnackBar(SnackBar(
-                                //   content: Text('Form Validation failed'),
-                                // ));
-                                //print('Form Validation failed'),));
-                              }
-                            },
-                          ),
-                            RaisedButton(
-                              child: Text('Cancel'),
-                                onPressed: () => Navigator.of(context).pushNamed('/home'))]
+                                    } else {
+                                      print('Form validation failed');
+                                      // Scaffold.of(context).showSnackBar(SnackBar(
+                                      //   content: Text('Form Validation failed'),
+                                      // ));
+                                      //print('Form Validation failed'),));
+                                    }
+                                  },
+                                ),
+                                RaisedButton(
+                                    child: Text('Cancel'),
+                                    onPressed: () => Navigator.of(context).pushNamed('/home'))]
 
-                        )
-    ]
-    )
-    )
-    )
-    )
+                          )
+                        ]
+                    )
+                )
+            )
+        )
     );
   }
 
   Widget getCCField() {
-    return SearchableDropdown.multiple(
-        items: this._userlist,
-        hint: 'Select CC User list',
-        underline: true,
-        onChanged: null);
-
     return MultiSelectFormField(
       title: Text('CC to',
           style: TextStyle(fontWeight: FontWeight.w500, fontSize: 20.0)),
@@ -223,15 +221,15 @@ class TaskState extends State<TaskForm> {
 
     int status = 0;
     String sbarcontent = '';
-    newtask = Task(taskName, taskDesc, assigned, cclist, deadline, status);
+    _thisTask = Task(taskName, taskDesc, assigned, cclist, deadline, status);
     print('New task created');
-    bool saved = newtask.saveMe();
+    bool saved = _thisTask.saveMe();
 
     if (saved) {
       sbarcontent = 'Task saved successfully';
     } else {
       sbarcontent =
-          'Task not saved!!! Try again. If the problem persists, please contact the admin';
+      'Task not saved!!! Try again. If the problem persists, please contact the admin';
     }
 
     var sbar = SnackBar(
@@ -246,50 +244,24 @@ class TaskState extends State<TaskForm> {
   }
 
   Widget getAssignedField() {
-
-    print('*+*+*+*+*+*+*+*+*+*+*+*+*+*+*+*+*+*+*+*+*+*+*+*+*+*+*+*+*+*+');
-    print('My user list: '+this._userlist.toString());
-    this._userlist = Users().getUsers();
-    return Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-            Text('Assign to:',
-            style: TextStyle(fontWeight: FontWeight.w500, fontSize: 20.0)),
-        SearchableDropdown.single(
-        items: this._userlist,
-        validator: (value){
-          if(value.length == 0){
-            return 'Assignment incomplete';
-          }
-          return null;
-        },
-        onChanged: (value){
-          setState(() {
-            this._assignedTo = value.toString();
-            print('Assigned to ' + _assignedTo);
-          });
-              })
-
-    ]
-    );
-
-    // return Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
-    //   Text('Assign to:',
-    //       style: TextStyle(fontWeight: FontWeight.w500, fontSize: 20.0)),
-    //   DropdownButton(
-    //       value: _assignedTo,
-    //       style: TextStyle(
-    //         fontWeight: FontWeight.w500,
-    //         color: Colors.black,
-    //       ),
-    //       items: _userlist.keys.map((String item) {
-    //         return DropdownMenuItem<String>(child: Text(item), value: item);
-    //       }).toList(),
-    //       onChanged: (value) {
-    //         setState(() {
-    //           this._assignedTo = value.toString();
-    //           print('Assigned to ' + _assignedTo);
-    //         });
-    //       })
-    // ]);
+    return Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
+      Text('Assign to:',
+          style: TextStyle(fontWeight: FontWeight.w500, fontSize: 20.0)),
+      DropdownButton(
+          value: _assignedTo,
+          style: TextStyle(
+            fontWeight: FontWeight.w500,
+            color: Colors.black,
+          ),
+          items: _users.map((String item) {
+            return DropdownMenuItem<String>(child: Text(item), value: item);
+          }).toList(),
+          onChanged: (value) {
+            setState(() {
+              this._assignedTo = value.toString();
+              print('Assigned to ' + _assignedTo);
+            });
+          })
+    ]);
   }
 }

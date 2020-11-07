@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:scheduler/screens/showTask.dart';
 import 'package:scheduler/Task.dart';
 import 'TaskForm.dart';
-//import 'package:scheduler/Users.dart';
+import 'package:scheduler/Users.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -14,6 +14,7 @@ void main() async {
   runApp(MaterialApp(home: TaskList(),
   initialRoute: '/',
   routes:<String, WidgetBuilder>{
+    '/home': (context) => TaskList(),
     '/createtask': (context) => TaskForm(),
     '/edittask': (context) => TaskForm()
   }));
@@ -23,6 +24,7 @@ class TaskList extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+
     return MaterialApp(
         title: 'Scheduler',
         theme: ThemeData(

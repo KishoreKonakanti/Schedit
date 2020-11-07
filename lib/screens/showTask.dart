@@ -67,6 +67,7 @@ class showtask extends StatelessWidget{
                 styledText('AssignedTo: '+assignedTo),
                 styledText('CC-ed to: '+CCList),
                 styledText('Deadline: '+deadline),
+                styledText('Status:'+ _task.statusDefinition(this._task.status)),
                 Center(
 
                   child: Row(
@@ -78,7 +79,7 @@ class showtask extends StatelessWidget{
                       onPressed: null),
                    SizedBox(width: 20.0,),
                    RaisedButton(
-                      child: const Text('Delete'),
+                      child: const Text('Close Task'),
                      onPressed: null)
               ]),
                 )
