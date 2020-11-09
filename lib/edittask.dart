@@ -208,7 +208,7 @@ class edittaskstate extends State<edittaskform> {
 
     int status = 0;
     String sbarcontent = '';
-    newtask = Task(taskName, taskDesc, assigned, cclist, deadline, status);
+    newtask = Task(null,taskName, taskDesc, assigned, cclist, deadline, status);
     print('New task created');
     bool saved = newtask.saveMe();
 

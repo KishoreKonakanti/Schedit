@@ -1,13 +1,17 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/rendering.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:searchable_dropdown/searchable_dropdown.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+// import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   db dbaccess = new db();
+  var assUser = 'Rajesh';
   final List<DropdownMenuItem> items = [];
   items.add(DropdownMenuItem( child: Text('Rajesh'), value: 'raj', ));
   items.add(DropdownMenuItem( child: Text('Krishna'), value: 'kp', ));
@@ -21,6 +25,7 @@ void main() async{
           children: [
             RaisedButton(child: const Text('Fetch Data'),
                 onPressed:(){
+              final sbar = SnackBar(content: Text(dbaccess.fetchdata()));
               dbaccess.fetchdata();
             } ),
             RaisedButton(
@@ -38,23 +43,61 @@ void main() async{
                 child: const Text('Update data'),
                 onPressed: () => dbaccess.updatedata()),
 
-            SearchableDropdown.single(
-                items: items,
-                value: 'raj',
-                hint: 'Select one user',
-                searchHint: 'Start typing',
-                onChanged: (value){
-                  print('Selected values:'+value.toString());
-                }),
-            SearchableDropdown.multiple(
-                items: null,
-                onChanged: null
-            )
+                // StreamBuilder<QuerySnapshot>(
+                //   stream: FirebaseFirestore.instance.collection('users').snapshots(),
+                //     // ignore: missing_return
+                //     builder: (context, snapshot){
+                //         // ignore: missing_return
+                //         if(!snapshot.hasData){
+                //           // ignore: missing_return
+                //           print('Has no data');
+                //           return Text('Has no data');
+                //         }
+                //         else
+                //           {
+                //           // ignore: missing_return, missing_return
+                //           //   return Icon(FontAwesomeIcons.users);
+                //             //return Text('asdasdas');
+                //              return _dropdownbuilder(snapshot.data.docs);
+                //         }
+                //     })
+
             ])
       )
       )
     )
   ));
+}
+
+Widget _dropdownbuilder(List<QueryDocumentSnapshot> docs) {
+  var assignedUser;
+  List<DropdownMenuItem> userlist = [];
+  print('Got docs:'+docs.toString());
+  for(int i = 0; i < docs.length; i++){
+    DocumentSnapshot snap = docs[i];
+    userlist.add(
+        DropdownMenuItem(
+            child: Text(snap['username']),
+            value: snap['userid'])
+    );
+  }
+  return Expanded(
+
+      child: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children:[
+        Icon(FontAwesomeIcons.users),
+        SearchableDropdown.single(
+            isExpanded: true,
+            underline: true,
+            items: userlist,
+            onChanged: (value){
+              assignedUser = value.toString();
+              print('Selected user:'+assignedUser);
+            },
+            hint: Text('Choose a user')
+        )])
+  );
 }
 
 class db{
@@ -65,17 +108,21 @@ class db{
     Firebase.initializeApp();
   }
 
-  fetchdata() {
+  String fetchdata() {
+    String username = '';
     print('******************************************************');
     print('Here...');
-    dbinstance.collection("tmp").get().then((querySnapshot) {
+    dbinstance.collection("users").where('userid', isEqualTo: 'raj').get().then((querySnapshot) {
+      if(querySnapshot.docs.length == 0){
+        username = null;
+      }
       querySnapshot.docs.forEach((result) {
-        // DocumentSnapshot d = result as DocumentSnapshot;
-        // print(d.id);
-        // print(d.data());
-        print(result['tmpid']+'=>'+result['name']);
+        print(result['userid']+'=>'+result['username']);
+        username = result['username'];
       });
     });
+    print(username+'******************************************************');
+    return username;
   }
 
   insertdata(){

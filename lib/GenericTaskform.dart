@@ -45,9 +45,23 @@ class TaskState extends State<TaskForm> {
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
-    String title, taskname, taskdesc, assignedto, cclist, status,
+    String title, taskname, taskdesc, assignedto, cclist;
+    int status;
     if(this._thisTask == null){
-
+      title = 'Create Task';
+      taskname = '';
+      taskdesc = '';
+      assignedto = '';
+      cclist = '';
+      status = -1;
+    }
+    else{
+      title = 'Edit Task';
+      taskname = this._thisTask.taskname;
+      taskdesc = this._thisTask.taskdesc;
+      assignedto = this._thisTask.assignedto;
+      cclist = this._thisTask.cclist;
+      status = this._thisTask.status;
     }
     return Form(
         key: _formkey,
@@ -221,7 +235,7 @@ class TaskState extends State<TaskForm> {
 
     int status = 0;
     String sbarcontent = '';
-    _thisTask = Task(taskName, taskDesc, assigned, cclist, deadline, status);
+    _thisTask = Task(null, taskName, taskDesc, assigned, cclist, deadline, status);
     print('New task created');
     bool saved = _thisTask.saveMe();
 

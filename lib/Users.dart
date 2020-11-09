@@ -16,37 +16,31 @@ class Users {
     // this.getUsers();
   }
 
-  List<DropdownMenuItem> getUsers(){
+
+  List<DropdownMenuItem> getUsers() {
     populateUsers();
     print('Populated users');
     print(this._userlist.toString());
     return this._userlist;
   }
 
-  Future<void> populateUsers() async {
-    // items.add(DropdownMenuItem( child: Text('Rajesh'), value: 'raj', ));
-    // items.add(DropdownMenuItem( child: Text('Krishna'), value: 'kp', ));
+  populateUsers() {
+    print('*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=');
+    print('Retrieving users...');
+    bool gotdata = false;
 
-    print('Fetching user list');
-
-    QuerySnapshot qysn = await dbinstance.collection('users').get();
-    qysn.docs.forEach((element) {
-      this._userlist.add(DropdownMenuItem(child: Text(element['username'].toString()),
-          value: element['userid'].toString()));
+    dbinstance.collection("users").get(GetOptions(source: Source.cache)).then((
+        querySnapshot) {
+      querySnapshot.docs.forEach((doc) {
+        print(doc.data());
+        gotdata = true;
+        // userlist[doc['userid'].toString()] = doc['username'].toString();
+      });
     });
 
-    // await dbinstance.collection("users").get().then((querySnapshot)
-    // {
-    //   // userlist.addEntries(querySnapshot.docs.asMap());
-    //     querySnapshot.docs.forEach((doc) {
-    //       print(doc.data());
-    //       userlist[doc['userid'].toString()] = doc['username'].toString();
-    //     });
-    // });
-
-    print('Populated users as:' + this._userlist.toString());
-    assert(this._userlist.length != 0, 'Couldnt get user names');
+    print('*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=');
   }
 }
+
 
 

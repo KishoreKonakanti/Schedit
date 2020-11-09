@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:scheduler/TaskForm.dart';
+import 'package:scheduler/createTask.dart';
+import 'package:intl/intl.dart';
+
 
 enum TaskStates{
   WORK_IN_PROGRESS,  CLOSED,  DELETED,  DEADLINE_EXPIRED
@@ -9,24 +11,29 @@ enum TaskStates{
 
 class Task
 {
+  var docid = null;
   String taskid = null;
   String taskname = null;
   String taskdesc = null;
-  String assignedTo = null;
-  String cclist = null;
+  String assignedto = null;
+  var cclist = null;
   var deadline = null;
+  DateTime dline;
+
   int status = 0;
   int priority = 1; // Priority range 1-5
   CollectionReference _taskCollection = FirebaseFirestore.instance.collection('task');
 
-  Task(String name, String desc, String ass, String cc, var dline, int status){
+  Task(var docid, String name, String desc, String ass, var cc, var deadline, int status){
     print('Creating task');
+    this.docid = docid;
     this.taskid = name.hashCode.toString();
     this.taskname = name;
     this.taskdesc = desc;
-    this.assignedTo = ass;
+    this.assignedto = ass;
     this.cclist = cc;
-    this.deadline = dline;
+    this.deadline = deadline;
+    this.dline = DateTime.parse(deadline);
     if (status == null){
       this.status = 0;
     }
@@ -34,12 +41,28 @@ class Task
       this.status = status;
     }
   }
+  // updatestatus() async{
+  //   Stream<QuerySnapshot> qys = this._taskCollection.
+  //   where('deadline', isLessThan: DateTime.now()).get().
+  //   whenComplete(() => );
+  //
+  //
+  // }
 
+  String toDate(String deadline){
+    DateTime date = DateTime.parse(deadline);
+    date = date.toLocal();
+    String dt = DateFormat('dd - MMM - yyyy (EEEE)').format(date);
+
+    return dt;
+  }
   String statusDefinition(int status){
     switch(status){
       case 0: return 'Task in Progress';
       case 1: return 'Task Completed';
       case 2: return 'Task Deleted';
+      case 3: return 'Task Expired';
+      default: return 'Unknown status: '+status.toString();
     }
     return null;
   }
@@ -55,37 +78,55 @@ class Task
     }
     return null;
   }
-  bool saveMe(){
+
+  bool saveMe()
+  {
+
     print('Task: Saving my self');
     print('Details:');
-    print(this.taskname+this.taskdesc+this.assignedTo+this.cclist+this.deadline);
+    print(this.taskname+this.taskdesc+this.assignedto+this.cclist+this.deadline);
+
     Map document = {
       'taskid': this.taskname.hashCode.toString(),
       'taskname': this.taskname,
       'taskdesc': this.taskdesc,
-      'assignedto': this.assignedTo,
+      'assignedto': this.assignedto,
       'cclist': this.cclist,
-      'deadline': this.deadline,
+      'deadline': this.toDate(this.deadline),
       'status': TaskStates.WORK_IN_PROGRESS
     };
-    try{
+
+    try
+    {
       print('Task details:'+document.toString());
+
       this._taskCollection.add({
         'taskid': this.taskname.hashCode.toString(),
         'taskname': this.taskname,
         'taskdesc': this.taskdesc,
-        'assignedto': this.assignedTo,
+        'assignedto': this.assignedto,
         'cclist': this.cclist,
-        'deadline': this.deadline,
+        'deadline': this.toDate(this.deadline),
         'status': TaskStates.WORK_IN_PROGRESS.index
       });
       print('Task saved successfully');
       return true;
     }
-    catch(e){
+    catch(e)
+    {
       print('Exception raised while saving task!!!'+e.toString());
       return false;
     }
+
+  }
+
+  Future<void> closeme() async
+  {
+
+    print('Closing task with id:'+this.docid);
+    await this._taskCollection.doc(this.docid).update({'status':1});
+    print('Task closed... check after some time');
+
   }
 
   // bool deleteme(String taskid){

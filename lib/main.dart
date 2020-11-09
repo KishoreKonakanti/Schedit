@@ -1,22 +1,22 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:scheduler/screens/showTask.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:scheduler/TaskListing.dart';
+import 'package:scheduler/screens/displaytaskdetails.dart';
 import 'package:scheduler/Task.dart';
-import 'TaskForm.dart';
+import 'createTask.dart';
 import 'package:scheduler/Users.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  //users us = new users();
-  // print(us.idtoName("raj"));
-  runApp(MaterialApp(home: TaskList(),
+  runApp(MaterialApp(home: TaskListing(null),
   initialRoute: '/',
   routes:<String, WidgetBuilder>{
-    '/home': (context) => TaskList(),
-    '/createtask': (context) => TaskForm(),
-    '/edittask': (context) => TaskForm()
+    '/home': (context) => TaskListing(null),
+    '/createtask': (context) => createTaskForm(),
+    '/edittask': (context) => createTaskForm()
   }));
 }
 
@@ -24,6 +24,9 @@ class TaskList extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    String userid = 'raj';
+    String username = 'Rajesh';
+    Task selectedTask;
 
     return MaterialApp(
         title: 'Scheduler',
@@ -33,51 +36,70 @@ class TaskList extends StatelessWidget {
         ),
         home: Scaffold(
           floatingActionButton: FloatingActionButton(
+            tooltip: 'Create new task',
+            
             child: Icon(Icons.add),
             onPressed: () {
-              // Navigator.of(context)
-              //     .push(MaterialPageRoute(builder: (context) => TaskForm()));
               Navigator.of(context).pushNamed('/createtask');
             },
           ),
           appBar: AppBar(
-            title: Text("Firestore Demo"),
+            title: Text("Skanda Task Manager"),
+            centerTitle: true,
           ),
-          body: StreamBuilder(
-            stream: FirebaseFirestore.instance.collection("task").snapshots(),
-            builder: (context, snapshot) {
-              if (!snapshot.hasData) {
-                return Center(child: CircularProgressIndicator());
-              } else {
-                return ListView.builder(
-                  itemCount: snapshot.data.documents.length,
-                  itemBuilder: (context, index) {
-                    DocumentSnapshot doc = snapshot.data.documents[index];
-                    return ListTile(
-                      onTap: () {
-                        print('Show task calling!!!');
-                        Task task = this.docToTask(doc);
-                        print('Doc converted to Task...');
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => showtask(
-                                      task,
-                                    )));
-                      },
-                      title: Text(doc['taskname']),
-                      subtitle: Text(doc['taskdesc']),
-                      trailing: IconButton(
-                        icon: Icon(Icons.delete),
-                        onPressed: () {
-                          doc.reference.delete();
+          body:
+          Center(
+            child: Column(
+              children: [
+                SizedBox(height: 30.0,),
+                Text('Tasks assigned to Rajesh',
+                style: TextStyle(
+                  fontSize: 20.0,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.brown
+                ),),
+                SizedBox(height: 30.0,),
+                StreamBuilder(
+                  stream: FirebaseFirestore.instance.collection("task").where('assignedto', isEqualTo: 'raj').snapshots(),
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData) {
+                      return Center(child: CircularProgressIndicator());
+                    } else {
+                      return ListView.builder(
+                        scrollDirection: Axis.vertical,
+                        shrinkWrap: true,
+                        itemCount: snapshot.data.documents.length,
+                        itemBuilder: (context, index) {
+                          DocumentSnapshot doc = snapshot.data.documents[index];
+                          return ListTile(
+                            onTap: () {
+                              print('Show task calling!!!');
+                              selectedTask = this.docToTask(doc);
+
+                              print('Doc converted to Task...');
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => displaytaskdetails(
+                                            selectedTask,
+                                          )));
+                            },
+                            title: Text(doc['taskname']),
+                            subtitle: Text(doc['taskdesc']),
+                            trailing: IconButton(
+                              icon: Icon(Icons.delete),
+                              onPressed: () {
+                                doc.reference.delete();
+                              },
+                            ),
+                          );
                         },
-                      ),
-                    );
+                      );
+                    }
                   },
-                );
-              }
-            },
+                ),
+              ],
+            ),
           ),
         ));
   }
@@ -85,10 +107,14 @@ class TaskList extends StatelessWidget {
   docToTask(DocumentSnapshot doc) {
     print('Converting doc to task');
     Task task;
-    if (doc.exists) {
-      task = Task(doc['taskname'], doc['taskdesc'],
-          doc['assignedTo'], null, null, 0);
-
+    if (doc.exists)
+    {
+      task = Task(null, doc['taskname'], doc['taskdesc'],
+          doc['assignedto'], doc['cclist'], doc['deadline'], doc['status']);
+    }
+    else{
+      print('Doc doesnt exisits');
+      return null;
     }
     print('Returning task');
     return task;
