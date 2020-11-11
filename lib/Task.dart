@@ -6,17 +6,18 @@ import 'package:intl/intl.dart';
 
 
 enum TaskStates{
-  WORK_IN_PROGRESS,  CLOSED,  DELETED,  DEADLINE_EXPIRED
+  WORK_IN_PROGRESS, COMPLETED, CLOSED,  DELETED,  DEADLINE_EXPIRED
 }
 
 class Task
 {
+  static final List<String> statuses = ['Work in Progress', 'Completed', 'Closed', 'Deleted', 'Deadline_expired'];
   var docid = null;
   String taskid = null;
   String taskname = null;
   String taskdesc = null;
   String assignedto = null;
-  var cclist = null;
+  List<String> cclist = null;
   var deadline = null;
   DateTime dline;
 
@@ -24,7 +25,7 @@ class Task
   int priority = 1; // Priority range 1-5
   CollectionReference _taskCollection = FirebaseFirestore.instance.collection('task');
 
-  Task(var docid, String name, String desc, String ass, var cc, var deadline, int status){
+  Task(var docid, String name, String desc, String ass, List<String> cc, var deadline, int status){
     print('Creating task');
     this.docid = docid;
     this.taskid = name.hashCode.toString();
@@ -57,14 +58,16 @@ class Task
     return dt;
   }
   String statusDefinition(int status){
-    switch(status){
-      case 0: return 'Task in Progress';
-      case 1: return 'Task Completed';
-      case 2: return 'Task Deleted';
-      case 3: return 'Task Expired';
-      default: return 'Unknown status: '+status.toString();
-    }
-    return null;
+    return statuses[status].toString();
+
+    // switch(status){
+    //   case 0: return 'Task in Progress';
+    //   case 1: return 'Task Completed';
+    //   case 2: return 'Task Deleted';
+    //   case 3: return 'Task Expired';
+    //   default: return 'Unknown status: '+status.toString();
+    // }
+    // return null;
   }
 
   String priorityDefinition(int pr){
@@ -83,16 +86,14 @@ class Task
   {
 
     print('Task: Saving my self');
-    print('Details:');
-    print(this.taskname+this.taskdesc+this.assignedto+this.cclist+this.deadline);
 
     Map document = {
       'taskid': this.taskname.hashCode.toString(),
       'taskname': this.taskname,
       'taskdesc': this.taskdesc,
       'assignedto': this.assignedto,
-      'cclist': this.cclist,
-      'deadline': this.toDate(this.deadline),
+      'cclist': this.cclist.toString(),
+      'deadline': this.deadline,
       'status': TaskStates.WORK_IN_PROGRESS
     };
 
@@ -105,8 +106,8 @@ class Task
         'taskname': this.taskname,
         'taskdesc': this.taskdesc,
         'assignedto': this.assignedto,
-        'cclist': this.cclist,
-        'deadline': this.toDate(this.deadline),
+        'cclist': FieldValue.arrayUnion(this.cclist),
+        'deadline':this.deadline,
         'status': TaskStates.WORK_IN_PROGRESS.index
       });
       print('Task saved successfully');
@@ -124,7 +125,7 @@ class Task
   {
 
     print('Closing task with id:'+this.docid);
-    await this._taskCollection.doc(this.docid).update({'status':1});
+    await this._taskCollection.doc(this.docid).update({'status':2});
     print('Task closed... check after some time');
 
   }

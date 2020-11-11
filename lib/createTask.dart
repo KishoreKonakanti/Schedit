@@ -1,5 +1,6 @@
+import 'package:flutter/cupertino.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:multiselect_formfield/multiselect_formfield.dart';
+import 'package:intl/intl.dart';
 import 'package:scheduler/Task.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -23,6 +24,7 @@ class createTaskForm extends StatefulWidget {
   }
 }
 
+// ignore: camel_case_types
 class createTask extends State<createTaskForm> {
   final _formkey = GlobalKey<FormState>();
   final _scafkey = GlobalKey<ScaffoldState>();
@@ -30,14 +32,15 @@ class createTask extends State<createTaskForm> {
   TextEditingController _taskNamectrl = new TextEditingController();
   TextEditingController _taskdescctrl = new TextEditingController();
 
-  double spacing = 50.0;
+  double spacing = 150.0;
 
   Task newtask;
   // Task _existingtask = null;
   var _taskName = null;
   var _taskDesc = null;
-  var _assignedTo = 'Rajesh';
-  var _cclist = null;
+  var _assignedTo = null;
+  List<String> _cclist = [];
+  var _selectedccitems = null;
   var _deadline = null;
   int status = 0;
   
@@ -51,25 +54,17 @@ class createTask extends State<createTaskForm> {
   Widget build(BuildContext context) {
     // TODO: implement build
 
-    String title, taskname, taskdetails, assignedto, cclist, deadline;
-    int status;
+    bool deadlineselected = true;
+    bool assigned = false;
 
-    // if(this._existingtask != null){
-    //   title = 'Edit Task';
-    //   taskname = this._existingtask.taskname;
-    //   taskdetails = this._existingtask.taskdesc;
-    //   assignedto = this._existingtask.assignedto;
-    //   cclist = this._existingtask.cclist;
-    //   deadline = this._existingtask.deadline;
-    //   status = this._existingtask.status;
-    // }
-    // else{
-    //   title = 'Create task';
-    //
-    // }
+    var iconcolor = Colors.teal;
+    var textcolor = Colors.brown;
+    List<DropdownMenuItem> userdropdownmenuitemslist = [];
+
     return Form(
         key: _formkey,
         child: Scaffold(
+          key: _scafkey,
           bottomNavigationBar: BackButton(
             onPressed: ()=> Navigator.of(context).pushNamed('/home'),
           ),
@@ -80,7 +75,7 @@ class createTask extends State<createTaskForm> {
                 child: Container(
                     padding: EdgeInsets.all(15.0),
                     child: Column(
-                        //mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: <Widget>[
                           TextFormField(
                               controller: _taskNamectrl,
@@ -90,8 +85,11 @@ class createTask extends State<createTaskForm> {
                                 }
                                 return null;
                               },
+
                               decoration: InputDecoration(
-                                  icon: const Icon(Icons.title),
+fillColor: textcolor,
+                                  icon: const Icon(FontAwesomeIcons.tasks),
+
                                   hintText: 'Enter task name',
                                   labelText: 'Enter task name')),
                           SizedBox(width: this.spacing),
@@ -99,16 +97,19 @@ class createTask extends State<createTaskForm> {
                             controller: _taskdescctrl,
                             validator: (value) {
                               if (value.isEmpty) {
-                                return 'Please enter a description';
+                                return 'Task description missing';
                               }
                               return null;
                             },
                             decoration: InputDecoration(
-                                icon: const Icon(Icons.web_asset),
+                              fillColor: textcolor,
+                                focusColor: textcolor,
+                                hoverColor: textcolor,
+                                icon: const Icon(FontAwesomeIcons.creditCard),
                                 hintText: 'Enter task description',
                                 labelText: 'Enter task description'),
                             minLines: 1,
-                            maxLines: 5,
+                            maxLines: 20,
                             maxLength: 500,
                           ),
                           SizedBox(width: this.spacing),
@@ -122,79 +123,75 @@ class createTask extends State<createTaskForm> {
                               }
                               else
                               {
-                                List<DropdownMenuItem> dditems = [];
-
                                 for (int i = 0; i < snapshot.data.docs.length; i++)
                                 {
                                   DocumentSnapshot snap = snapshot.data.docs[i];
 
-                                  dditems.add(DropdownMenuItem(
+                                  userdropdownmenuitemslist.add(DropdownMenuItem(
                                     child: Text(snap['username'].toString()),
                                     value: snap['userid'].toString(),
                                   ));
                                 }
-                                print('Userlist:'+dditems.toString());
+
                                 return Row(
                                   children: [
-                                    Icon(FontAwesomeIcons.users),
+                                    Icon(FontAwesomeIcons.user),
                                     SizedBox(width: 20.0),
                                     Expanded(
                                       child: SearchableDropdown.single(
+                                        validator: (value){
+                                          if(value == null){
+                                            return 'Task unassigned!!!';
+                                          }
+                                        },
                                       isExpanded: true,
                                         hint: 'Choose a user',
                                         searchHint: 'Start typing',
-                                        items: dditems,
+                                        items: userdropdownmenuitemslist,
                                         onChanged: (value){
                                             print('Selected value:'+value.toString())                                       ;
+                                            setState(() {
+                                              _assignedTo = value;
+                                            });
                                       }))
                                   ],
                                 );
                               }
                             }),
                           SizedBox(width: this.spacing),
-                          StreamBuilder<QuerySnapshot>(
-                              stream: dbinstance.collection('users').snapshots(),
-                              builder: (context, snapshot) {
-                                if (!snapshot.hasData)
-                                {
-                                  // print('NO User DATA!!!');
-                                  return Text('Unable to load user data... Please try later');
-                                }
-                                else
-                                {
-                                  List<DropdownMenuItem> dditems = [];
-
-                                  for (int i = 0; i < snapshot.data.docs.length; i++)
-                                  {
-                                    DocumentSnapshot snap = snapshot.data.docs[i];
-
-                                    dditems.add(DropdownMenuItem(
-                                      child: Text(snap['username'].toString()),
-                                      value: snap['userid'].toString(),
-                                    ));
-                                  }
-                                  print('Userlist:'+dditems.toString());
-                                  return Row(
+                          Row(
                                     children: [
                                       Icon(FontAwesomeIcons.users),
                                       SizedBox(width: 20.0),
                                       Expanded(
                                           child: SearchableDropdown.multiple(
+                                            selectedItems: _selectedccitems,
                                               isExpanded: true,
                                               hint: 'Choose users to be informed',
                                               searchHint: 'Start typing',
-                                              items: dditems,
+                                              items: userdropdownmenuitemslist,
+
                                               onChanged: (value){
                                                 print('Selected value:'+value.toString())                                       ;
+                                                for(int i=0; i < value.length;i++){
+                                                  String userid = userdropdownmenuitemslist[value[i]].value.toString();
+                                                  _cclist.add(userid);
+                                                }
+
+                                                setState(() {
+                                                  _selectedccitems = value;
+                                                  print('Selected userids:'+_cclist.toString());
+                                                  print('Selected userids:['+
+                                                      _cclist.reduce((value, element) => value+element)+']');
+                                                });
                                               }))
                                     ],
-                                  );
-                                }
-                              }),
+                                  ),
                           SizedBox(width: this.spacing),
                           Row(
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               children: [
+                                Icon(FontAwesomeIcons.calendar, color:iconcolor ,),
                                 Text(
                                   'Deadline:',
                                   style: TextStyle(
@@ -206,8 +203,16 @@ class createTask extends State<createTaskForm> {
                                   tooltip: 'Tap to select deadline',
                                   onPressed: () {
                                     _selectDate(context);
+                                    setState(() {
+                                        deadlineselected = true;
+                                    });
                                   },
-                                )
+                                ),
+                                Text(this._deadline!=null ? toDate(this._deadline.toString()):'Not yet selected',
+
+                                    style: TextStyle(color: Colors.red,
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 15.0))
                               ]),
                           SizedBox(width: this.spacing),
                           Row(
@@ -217,23 +222,18 @@ class createTask extends State<createTaskForm> {
                             RaisedButton(
                             child: const Text('Create Task'),
                             onPressed: () {
+                              String sbarcontent= '';
                               print('**********************************');
                               print('Task creation started');
-                              if (_formkey.currentState.validate()) {
-                                // final snackbar = SnackBar(content: Text('Saving Data'));
-                                // _scafkey.currentState
-                                //     .showSnackBar(snackbar);
-                                // Scaffold.of(context)
-                                //     .showSnackBar(SnackBar(content: Text('Saving Data'),));
-                                _saveTask();
-                                print('Task creation completed... Popping the screen');
-
-                              } else {
-                                print('Form validation failed');
-                                // Scaffold.of(context).showSnackBar(SnackBar(
-                                //   content: Text('Form Validation failed'),
-                                // ));
-                                //print('Form Validation failed'),));
+                              if (_formkey.currentState.validate() && _validate()){
+                                    _saveTask();
+                                    sbarcontent = 'Task created succesfully';
+                                    _scafkey.currentState.showSnackBar(SnackBar(content: Text(sbarcontent)));
+                              }
+                              else
+                                {
+                                   _scafkey.currentState.showSnackBar(SnackBar(
+                                    content: Text('Invalid entries')));
                               }
                             },
                           ),
@@ -250,53 +250,9 @@ class createTask extends State<createTaskForm> {
     );
   }
 
-  Widget getCCField() {
-    StreamBuilder<QuerySnapshot>(
-        stream: dbinstance.collection('users').snapshots(),
-        builder: (context, snapshot) {
-        if (!snapshot.hasData)
-        {
-        // print('NO User DATA!!!');
-            return Text('Unable to load user data... Please try later');
-        }
-        else
-    {
-    List<DropdownMenuItem> dditems = [];
-
-    for (int i = 0; i < snapshot.data.docs.length; i++)
-    {
-    DocumentSnapshot snap = snapshot.data.docs[i];
-
-    dditems.add(DropdownMenuItem(
-    child: Text(snap['username'].toString()),
-    value: snap['userid'].toString(),
-    ));
-    }
-    print('Userlist:'+dditems.toString());
-    return Row(
-    children: [
-    Icon(FontAwesomeIcons.users),
-    SizedBox(width: 20.0),
-    Expanded(
-    child: SearchableDropdown.multiple(
-    isExpanded: true,
-    hint: 'Choose a user',
-    searchHint: 'Start typing',
-    items: dditems,
-    onChanged: (value){
-    print('Selected value:'+value.toString()); ;
-    }
-    )
-    )
-    ],
-    );
-    }
-        });
-  }
-
 
   bool _validate() {
-    print('Validating' + this._assignedTo + this._deadline);
+    print('Validating' + this._assignedTo.toString() + this._deadline.toString());
     if (this._assignedTo == null || this._deadline == null) {
       print('Form validate failed');
       return false;
@@ -309,7 +265,6 @@ class createTask extends State<createTaskForm> {
     final DateTime picked = await showDatePicker(
       context: context,
       initialDate: DateTime.now(), // Refer step 1
-
       firstDate: DateTime.now(),
       lastDate: DateTime(2025),
     );
@@ -329,16 +284,16 @@ class createTask extends State<createTaskForm> {
     print('CCed to:' + _cclist.toString());
     print('Deadline:' + _deadline.toString());
 
-    var taskName = _taskNamectrl.text;
-    var taskDesc = _taskdescctrl.text;
-    var assigned = _assignedTo.toString();
-    var cclist = _cclist.toString();
+    var taskname = _taskNamectrl.text;
+    var taskdesc = _taskdescctrl.text;
+    var assignedto = _assignedTo.toString();
+    List<String> cclist = _cclist;
     var deadline = _deadline.toString();
-
     int status = 0;
+
     String sbarcontent = '';
 
-    newtask = Task(null, taskName, taskDesc, assigned, cclist, deadline, status);
+    newtask = Task(null, taskname, taskdesc, assignedto, cclist, deadline, status);
     print('New task created');
     bool saved = newtask.saveMe();
 
@@ -390,4 +345,13 @@ class createTask extends State<createTaskForm> {
           }
         });
   }
+
+  String toDate(String deadline){
+    print('Incoming deadline:'+deadline.toString());
+    DateTime date = DateTime.parse(deadline);
+    date = date.toLocal();
+    String dt = DateFormat('dd - MMM - yyyy (EEEE)').format(date);
+    return dt;
+  }
+
 }

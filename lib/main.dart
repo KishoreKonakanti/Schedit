@@ -3,20 +3,25 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:scheduler/TaskListing.dart';
+import 'package:scheduler/edittask.dart';
 import 'package:scheduler/screens/displaytaskdetails.dart';
 import 'package:scheduler/Task.dart';
+import 'package:scheduler/usermgmt.dart';
 import 'createTask.dart';
-import 'package:scheduler/Users.dart';
+import 'package:get/get.dart';
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   runApp(MaterialApp(home: TaskListing(null),
+
   initialRoute: '/',
   routes:<String, WidgetBuilder>{
     '/home': (context) => TaskListing(null),
     '/createtask': (context) => createTaskForm(),
-    '/edittask': (context) => createTaskForm()
+    '/edittask': (context) => edittask(),
+    '/users': (context) => usermgmt(),
   }));
 }
 
@@ -35,10 +40,10 @@ class TaskList extends StatelessWidget {
           visualDensity: VisualDensity.adaptivePlatformDensity,
         ),
         home: Scaffold(
-          floatingActionButton: FloatingActionButton(
+          floatingActionButton: FloatingActionButton.extended(
             tooltip: 'Create new task',
-            
-            child: Icon(Icons.add),
+            label: Text('Create task'),
+            icon: Icon(FontAwesomeIcons.tasks),
             onPressed: () {
               Navigator.of(context).pushNamed('/createtask');
             },
@@ -70,8 +75,11 @@ class TaskList extends StatelessWidget {
                         shrinkWrap: true,
                         itemCount: snapshot.data.documents.length,
                         itemBuilder: (context, index) {
-                          DocumentSnapshot doc = snapshot.data.documents[index];
+                          DocumentSnapshot doc = snapshot.data.docs[index];
                           return ListTile(
+                            onLongPress: (){
+                              print('Edit task');
+                            },
                             onTap: () {
                               print('Show task calling!!!');
                               selectedTask = this.docToTask(doc);

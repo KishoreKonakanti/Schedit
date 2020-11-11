@@ -2,8 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:scheduler/edittask.dart';
-import '../Task.dart';
 import 'package:get/get.dart';
+import 'Task.dart';
 
 class displaytaskdetails extends StatelessWidget{
   Task _task;
@@ -78,6 +78,7 @@ class displaytaskdetails extends StatelessWidget{
         });
 
     print('CC Widget built...');
+
     var assignedtext = StreamBuilder(
         stream: FirebaseFirestore.instance.collection('users').
         where('userid', isEqualTo: this._task.assignedto).snapshots(),

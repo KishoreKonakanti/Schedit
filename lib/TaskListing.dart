@@ -29,13 +29,14 @@ class TaskListing extends StatelessWidget {
           visualDensity: VisualDensity.adaptivePlatformDensity,
         ),
         home: Scaffold(
-          floatingActionButton: FloatingActionButton(
-            child: Icon(Icons.add),
+          floatingActionButton: FloatingActionButton.extended(
+            tooltip: 'Create new task',
+            label: Text('Create task'),
+            icon: Icon(FontAwesomeIcons.tasks),
             onPressed: () {
-              // Navigator.of(context)
-              //     .push(MaterialPageRoute(builder: (context) => TaskForm()));
               Navigator.of(context).pushNamed('/createtask');
             },
+
           ),
           appBar: AppBar(
             title: Text("Task Listing"),
@@ -85,9 +86,17 @@ class TaskListing extends StatelessWidget {
   docToTask(DocumentSnapshot doc) {
     print('Converting doc to task');
     Task task;
-    if (doc.exists) {
+    if (doc.exists)
+    {
+      List<String> taskcclist = [];
+      print('2222'+doc['cclist'].toString()+ "=>"+ doc['cclist'].length.toString());
+      List<dynamic> tcclist = doc['cclist'];
+      print('Dynamic works');
+      List<String> cclist = tcclist.map((e) => e.toString()).toList();
+      print('Converting cclist to List of Strings');
+      taskcclist = cclist.map((e) => e.toString()).toList();
       task = Task(doc.id,doc['taskname'], doc['taskdesc'],
-          doc['assignedto'], doc['cclist'], doc['deadline'], doc['status']);
+          doc['assignedto'], taskcclist, doc['deadline'], doc['status']);
 
     }
     print('Returning task');
