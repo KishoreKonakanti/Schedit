@@ -8,8 +8,8 @@ import 'displaytaskdetails.dart';
 import 'usermgmt.dart';
 
 class Router {
-  Route<dynamic> generateRoute(RouteSettings settings) {
-    static Route<dynamic> generateRoute(RouteSettings settings) {
+  static Route<dynamic> generateRoute(RouteSettings settings) {
+     Route<dynamic> generateRoute(RouteSettings settings) {
       switch (settings.name) {
         case homeroute:
           var filters = settings.arguments as String;

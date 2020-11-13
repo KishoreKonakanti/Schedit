@@ -18,10 +18,30 @@ void main() async{
 
   runApp(MaterialApp(
     home: Scaffold(
+
+      appBar: AppBar(
+        title: Text('Menued'),
+      ),
+      drawer: Drawer(
+      elevation: 20.0,
+        child: ListView(
+            children: [
+              DrawerHeader(child: Text('Menu here')),
+
+                  ListTile(title: Text('Item 1'), onTap: (){print('Clicked me 1');},),
+              ListTile(title: Text('Item 2'), onTap: (){print('Clicked me 2');},),
+              ListTile(title: Text('Item 3'), onTap: (){print('Clicked me 3');},),
+              ListTile(title: Text('Item 4'), onTap: (){print('Clicked me 4');},),
+
+                ],
+              )
+          ),
+
         body:Container(
       padding: EdgeInsets.all(20.0),
       child:Center(
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             RaisedButton(child: const Text('Fetch Data'),
                 onPressed:(){

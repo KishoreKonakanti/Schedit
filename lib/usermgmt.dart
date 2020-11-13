@@ -34,9 +34,16 @@ class usermgmtstate extends State<usermgmt>{
             setState(() {
               _contact = selectedcontact;
               print('Selected contact:'+_contact.toString());
-              String number = _contact.phoneNumber.toString();
+              String number = _contact.phoneNumber.number;
+              // Remove + sign
+              if (number.contains('+')){
+                number=number.replaceFirst('+', '');
+              }
               String username = _contact.fullName;
-              username.replaceAll(' ', '');
+              username = username.replaceAll(' ', '_');
+              print('++++++++++++++++++++++++++++++++++++++++++++++++++');
+              print('Adding user details:'+number+":>"+username);
+              print('++++++++++++++++++++++++++++++++++++++++++++++++++');
               FirebaseFirestore.instance.collection('users').add({
                 'username': username,
                 'userid': number
@@ -83,7 +90,14 @@ class usermgmtstate extends State<usermgmt>{
                       trailing: IconButton(
                         icon: Icon(Icons.delete),
                         onPressed: () {
-                          doc.reference.delete();
+                          if(doc['username'] == 'Unassigned') {
+                            print('++++++++++++++++++++++++++++++++++++++++++++++++++');
+                            print('Cannot delete Unassigned user');
+                            print('++++++++++++++++++++++++++++++++++++++++++++++++++');
+                          }
+                          else{
+                            doc.reference.delete();
+                          }
                         },
                       ),
                     );

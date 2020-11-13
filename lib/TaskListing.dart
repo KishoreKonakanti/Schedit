@@ -7,7 +7,20 @@ import 'package:scheduler/Task.dart';
 import 'createTask.dart';
 import 'package:scheduler/Users.dart';
 
-class TaskListing extends StatelessWidget {
+class TaskListingState extends StatefulWidget{
+  String _userid = '';
+  TaskListingState(this._userid);
+  @override
+  State<StatefulWidget> createState() {
+    // TODO: implement createState
+    return TaskListing(this._userid);
+  }
+}
+
+class TaskListing extends State<TaskListingState> {
+
+  String _searchtext = '';
+  TextEditingController _searchtextctrl = new TextEditingController();
 
   final _dbinstance = FirebaseFirestore.instance;
   String _assignedto = null;
@@ -18,17 +31,29 @@ class TaskListing extends StatelessWidget {
     }
   }
 
+  void initState(){
+    super.initState();
+    _searchtextctrl.addListener(() {searchtextchanged();});
+  }
+
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
 
-    return MaterialApp(
-        title: 'Scheduler_TL',
-        theme: ThemeData(
-          primarySwatch: Colors.amber,
-          visualDensity: VisualDensity.adaptivePlatformDensity,
-        ),
-        home: Scaffold(
+    return Scaffold(
+          drawer: Drawer(
+            child: ListView(
+              children: [
+                ListTile(title: Text('Dashboard'), onTap: (){
+                  Navigator.pushNamed(context, '/home');
+                },),
+                ListTile(title: Text('Users'),onTap: (){
+                  Navigator.pushNamed(context, '/users');
+                },),
+                ListTile(title: Text('Dashboard'))
+              ],
+            ),
+          ),
           floatingActionButton: FloatingActionButton.extended(
             tooltip: 'Create new task',
             label: Text('Create task'),
@@ -38,49 +63,86 @@ class TaskListing extends StatelessWidget {
             },
 
           ),
+          bottomNavigationBar: BackButton(
+            onPressed: null,
+          ),
           appBar: AppBar(
             title: Text("Task Listing"),
           ),
-          body:StreamBuilder(
-                      stream: FirebaseFirestore.instance.collection("task").snapshots(),
-                      builder: (context, snapshot) {
-                          if (!snapshot.hasData) {
-                          return Center(child: CircularProgressIndicator());
-                          } else {
+          body:Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              TextFormField(
+                  controller: _searchtextctrl,
+                  maxLines: 1,
+                  decoration: InputDecoration(
+                    icon: Icon(FontAwesomeIcons.search),
+                    hintText: 'Search tasks'
+                  ),
+              ),
+              SizedBox(
+                height: 200.0,
+                child: StreamBuilder(
+                            stream: FirebaseFirestore.instance.collection("task").snapshots(),
+                            builder: (context, snapshot) {
+                                if (!snapshot.hasData) {
+                                return Center(child: CircularProgressIndicator());
+                                }
+                                else
+                                {
 
-                          return ListView.builder(
-                              itemCount: snapshot.data.documents.length,
-                              itemBuilder: (context, index) {
-                                  DocumentSnapshot doc = snapshot.data.documents[index];
-                                  updateStatus(doc);
-                                  return ListTile(
-                                      onTap: () {
-                                          print('Show task calling!!!');
-                                          Task task = this.docToTask(doc);
-                                          print('Doc converted to Task...');
-                                          Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                          builder: (context) => displaytaskdetails(
-                                          task,
-                                          )));
-                                      },
-                                      title: Text(doc['taskname']),
-                                      subtitle: Text(doc['taskdesc']),
-                                      trailing: IconButton(
-                                      icon: Icon(Icons.delete),
-                                        onPressed: ()
-                                        {
-                                            doc.reference.delete();
-                                        },
-                                      ),
-                              );
-                              },
-                              );
-                          }
-                      },
-                ),
-        ));
+                                  return ListView.builder(
+                                      itemCount: snapshot.data.documents.length,
+                                      itemBuilder: (context, index) {
+                                          DocumentSnapshot doc = snapshot.data.documents[index];
+                                          updateStatus(doc);
+                                          String taskname = doc['taskname'];
+                                          String taskdesc = doc['taskdesc'];
+                                          if(taskname.toLowerCase().contains(_searchtext) || 
+                                          taskdesc.toLowerCase().contains(_searchtext))
+                                          {
+                                            return ListTile(
+                                              onTap: () {
+                                                print('Show task calling!!!');
+                                                Task task = this.docToTask(doc);
+                                                print(
+                                                    'Doc converted to Task...');
+                                                Navigator.push(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                        builder: (context) =>
+                                                            displaytaskdetails(
+                                                              task,
+                                                            )));
+                                              },
+                                              title: Text(doc['taskname']),
+                                              subtitle: Text(doc['taskdesc']),
+                                              trailing: IconButton(
+                                                icon: Icon(Icons.delete),
+                                                onPressed: () {
+                                                  //doc.reference.delete();
+                                                  FirebaseFirestore.instance
+                                                      .collection('task').doc(
+                                                      doc.id).update({
+                                                    'status': TaskStates.DELETED
+                                                        .index.toString()
+                                                  });
+                                                },
+                                              ),
+                                            );
+                                          }
+                                          else{
+                                            //placeholder
+                                          }
+                                  },
+                                    );
+                                }
+                            },
+                      ),
+              ),
+            ],
+          ),
+        );
   }
 
   docToTask(DocumentSnapshot doc) {
@@ -104,5 +166,11 @@ class TaskListing extends StatelessWidget {
   }
   void updateStatus(DocumentSnapshot doc){
 
+  }
+
+  void searchtextchanged() {
+    setState(() {
+      this._searchtext = _searchtextctrl.text.toLowerCase();
+    });
   }
 }

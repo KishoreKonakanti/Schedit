@@ -95,8 +95,7 @@ class displaytaskdetails extends StatelessWidget{
     print('All fields available');
 
     // TODO: implement build
-    return MaterialApp(
-      home: Scaffold(
+    return Scaffold(
         bottomNavigationBar: BackButton(
           onPressed: () => Navigator.of(context).pushNamed('/home'),
         ),
@@ -115,7 +114,7 @@ class displaytaskdetails extends StatelessWidget{
                 ccwidget,
                 styledText('Deadline: '+this._task.toDate(deadline).toString()),
                 styledText('# of days left: '+numDaysLeft.toString()+' days'),
-                styledText('Status:'+ _task.statusDefinition(this._task.status)),
+                styledText('Status:'+ ((numDaysLeft>=1)?_task.statusDefinition(this._task.status):'EXPIRED')),
                 Center(
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -144,8 +143,7 @@ class displaytaskdetails extends StatelessWidget{
           ),
         ),
       ),
-    )
-    ;
+    );
   }
 
 }
