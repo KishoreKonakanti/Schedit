@@ -1,22 +1,20 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/rendering.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:scheduler/TaskListing.dart';
+import 'listtasks.dart';
 import 'package:scheduler/screens/displaytaskdetails.dart';
-import 'package:scheduler/utilities.dart';
+import 'package:scheduler/tmp/utilities.dart';
 import 'package:searchable_dropdown/searchable_dropdown.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'Task.dart';
-import 'package:get/get.dart';
-// import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import '../models/task.dart';
 
 class edittask extends StatefulWidget{
   Task _editableTask;
 
   edittask({Task task}){
-    print('Got Task id:'+task.taskid);
+    print('Got Task id:'+ task.taskid);
     print('======================================');
     this._editableTask = task;
   }
@@ -149,7 +147,7 @@ class edittaskform extends State<edittask>{
           }
     }); // ASSIGNED
 
-    var ccfield =                   StreamBuilder<QuerySnapshot>(
+    var ccfield =  StreamBuilder<QuerySnapshot>(
     stream: dbinstance.collection('users').snapshots(),
     builder: (context, snapshot) {
     if (!snapshot.hasData)

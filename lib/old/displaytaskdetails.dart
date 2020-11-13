@@ -3,13 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:scheduler/edittask.dart';
 import 'package:get/get.dart';
-import 'Task.dart';
+import 'task.dart';
 
 class displaytaskdetails extends StatelessWidget{
   Task _task;
 
   displaytaskdetails(this._task){
-    print('Display Task: Todo'+this._task.cclist.toString());
+    print('Display Task: Todo'+this._task._cclist.toString());
   }
 
   Widget styledText(String txt)
@@ -30,13 +30,13 @@ class displaytaskdetails extends StatelessWidget{
     int numDaysLeft = 0;
 
     print('In build function...');
-    print('CC list:'+this._task.cclist.toString());
-    print('Task Name:'+this._task.taskname);
-    print('Description:'+this._task.taskdesc);
-    print('AssignedTo:'+this._task.assignedto);
-    print("deadline :"+this._task.toDate(this._task.deadline));
+    print('CC list:'+this._task._cclist.toString());
+    print('Task Name:'+this._task._taskname);
+    print('Description:'+this._task._taskdesc);
+    print('AssignedTo:'+this._task._assignedto);
+    print("deadline :"+this._task.toDate(this._task._deadline));
     print("Status:"+this._task.statusDefinition(this._task.status));
-    numDaysLeft = this._task.dline.difference(DateTime.now()).inDays;
+    numDaysLeft = this._task._dline.difference(DateTime.now()).inDays;
     print('# of days left:'+ numDaysLeft.toString());
     /*
     PreProcess all task details
@@ -44,23 +44,23 @@ class displaytaskdetails extends StatelessWidget{
 
     String assignedto, deadline;
     var CCList;
-    String taskname = this._task.taskname;
-    String taskdesc = this._task.taskdesc;
+    String taskname = this._task._taskname;
+    String taskdesc = this._task._taskdesc;
     assignedto = 'None';
 
-    if (_task.assignedto != null) {
-      assignedto = this._task.assignedto;
+    if (_task._assignedto != null) {
+      assignedto = this._task._assignedto;
     }
 
     deadline = 'None';
-    if(_task.deadline != null){
-      deadline = _task.deadline;
+    if(_task._deadline != null){
+      deadline = _task._deadline;
     }
-    print('DTD: CClist'+this._task.cclist.toString());
+    print('DTD: CClist'+this._task._cclist.toString());
 
     var ccwidget = StreamBuilder(
         stream: FirebaseFirestore.instance.collection('users').
-        where('userid', whereIn: this._task.cclist).snapshots(),
+        where('userid', whereIn: this._task._cclist).snapshots(),
         builder: (context, snapshot){
           List<String> usernames = [];
           if(!snapshot.hasData){
@@ -72,7 +72,7 @@ class displaytaskdetails extends StatelessWidget{
               DocumentSnapshot snap = snapshot.data.docs[i];
               usernames.add(snap['username']);
             }
-            print('CCed usernames:'+usernames.toString()+"::"+this._task.cclist.toString());
+            print('CCed usernames:'+usernames.toString()+"::"+this._task._cclist.toString());
             return styledText('CCed user list: '+ (usernames.length==0?'No users cced!!!':usernames.map((e) => e.toString()+", ").toString()));
           }
         });
@@ -81,7 +81,7 @@ class displaytaskdetails extends StatelessWidget{
 
     var assignedtext = StreamBuilder(
         stream: FirebaseFirestore.instance.collection('users').
-        where('userid', isEqualTo: this._task.assignedto).snapshots(),
+        where('userid', isEqualTo: this._task._assignedto).snapshots(),
         builder: (context, snapshot){
           if(!snapshot.hasData ||  snapshot.data.docs.length > 1){
             return Text('Error in loading user name');

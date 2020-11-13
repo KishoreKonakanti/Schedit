@@ -1,13 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
-import 'package:scheduler/Task.dart';
+import 'package:scheduler/task.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:searchable_dropdown/searchable_dropdown.dart';
 
-import 'Users.dart';
+import 'users.dart';
 
 class createTaskForm extends StatefulWidget {
   // Task _newtask;

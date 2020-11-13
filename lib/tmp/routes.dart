@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:scheduler/TaskListing.dart';
-import 'Task.dart';
+import 'package:scheduler/listtasks.dart';
+import 'task.dart';
 import 'constants.dart';
 import 'edittask.dart';
 import 'createTask.dart';

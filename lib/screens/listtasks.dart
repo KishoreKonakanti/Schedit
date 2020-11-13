@@ -2,14 +2,15 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:scheduler/screens/displaytaskdetails.dart';
-import 'package:scheduler/Task.dart';
+import '../models/task.dart';
 import 'createTask.dart';
-import 'package:scheduler/Users.dart';
+import '../screens/displaytaskdetails.dart';
+import '../constants.dart';
 
-class TaskListingState extends StatefulWidget{
+
+class listtasks extends StatefulWidget{
   String _userid = '';
-  TaskListingState(this._userid);
+  listtasks(this._userid);
   @override
   State<StatefulWidget> createState() {
     // TODO: implement createState
@@ -17,7 +18,7 @@ class TaskListingState extends StatefulWidget{
   }
 }
 
-class TaskListing extends State<TaskListingState> {
+class TaskListing extends State<listtasks> {
 
   String _searchtext = '';
   TextEditingController _searchtextctrl = new TextEditingController();
@@ -80,8 +81,7 @@ class TaskListing extends State<TaskListingState> {
                     hintText: 'Search tasks'
                   ),
               ),
-              SizedBox(
-                height: 200.0,
+              Expanded(
                 child: StreamBuilder(
                             stream: FirebaseFirestore.instance.collection("task").snapshots(),
                             builder: (context, snapshot) {
@@ -92,50 +92,54 @@ class TaskListing extends State<TaskListingState> {
                                 {
 
                                   return ListView.builder(
+
                                       itemCount: snapshot.data.documents.length,
                                       itemBuilder: (context, index) {
-                                          DocumentSnapshot doc = snapshot.data.documents[index];
-                                          updateStatus(doc);
-                                          String taskname = doc['taskname'];
-                                          String taskdesc = doc['taskdesc'];
-                                          if(taskname.toLowerCase().contains(_searchtext) || 
-                                          taskdesc.toLowerCase().contains(_searchtext))
-                                          {
-                                            return ListTile(
-                                              onTap: () {
-                                                print('Show task calling!!!');
-                                                Task task = this.docToTask(doc);
-                                                print(
-                                                    'Doc converted to Task...');
-                                                Navigator.push(
-                                                    context,
-                                                    MaterialPageRoute(
-                                                        builder: (context) =>
-                                                            displaytaskdetails(
-                                                              task,
-                                                            )));
-                                              },
-                                              title: Text(doc['taskname']),
-                                              subtitle: Text(doc['taskdesc']),
-                                              trailing: IconButton(
-                                                icon: Icon(Icons.delete),
-                                                onPressed: () {
-                                                  //doc.reference.delete();
-                                                  FirebaseFirestore.instance
-                                                      .collection('task').doc(
-                                                      doc.id).update({
-                                                    'status': TaskStates.DELETED
-                                                        .index.toString()
-                                                  });
-                                                },
+                                        DocumentSnapshot doc = snapshot.data.documents[index];
+                                        String taskname = doc['taskname'];
+                                        String taskdesc = doc['taskdesc'];
+                                        String taskid = doc['taskid'];
+                                        String assigned = username;
+                                        int status = 4;
+                                        return Card(
+                                            child: ListTile(
+                                              title: Column(
+
+                                                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                                  children:[
+                                                    Row(mainAxisAlignment:MainAxisAlignment.spaceBetween,
+                                                      children: [
+                                                        Text(taskname, style: TextStyle(fontSize: 20.0)),
+                                                        IconButton
+                                                          (
+                                                            icon:Icon(Icons.delete),
+                                                            onPressed: () async
+                                                            {
+                                                                await FirebaseFirestore.instance.collection('task').
+                                                                          doc(doc.id).update({
+                                                                        'status': TaskStatus.DELETED.index.toString()});
+                                                            }
+                                                          )
+                                                          ]
+                                                        ),
+                                                    Row(children: [Text(taskdesc, style: TextStyle(fontSize: 15.0))]),
+                                                    SizedBox(height: 10.0,),
+                                                    Row(mainAxisAlignment:MainAxisAlignment.spaceBetween,
+                                                      children: [Text('Assigned:'+assigned, style: TextStyle(fontSize: 10.0)),
+                                                        IconButton(
+                                                              icon: Icon(Icons.messenger),
+                                                              onPressed: ()
+                                                              {
+                                                                  Navigator.pushNamed(context, '/chats', arguments: taskid);
+                                                              }
+                                                        )]
+                                                        ),
+                                                    SizedBox(width: 20.0,)]
                                               ),
-                                            );
-                                          }
-                                          else{
-                                            //placeholder
-                                          }
-                                  },
-                                    );
+                                            ));
+                                      }
+
+                                  );
                                 }
                             },
                       ),

@@ -5,8 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:scheduler/Task.dart';
-import 'Task.dart';
+import 'package:scheduler/task.dart';
+import 'task.dart';
 
 void main() async
 {

@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:scheduler/Task.dart';
-import 'Task.dart';
+import 'package:scheduler/task.dart';
+import 'task.dart';
 
 void main() async
 {
@@ -13,19 +13,6 @@ void main() async
   runApp(MaterialApp(home: chatwidget(null)));
 }
 
-class chat{
-  String _taskid;
-  String _chatid;
-  String _userid;
-  String _chattext;
-  DateTime _chattime;
-  String username;
-  chat(this._taskid,this._chatid, this._userid, this._chattext, this._chattime){
-    // Map userid to username
-    this.username = 'ToDo';
-  }
-
-}
 
 class chatwidget extends StatefulWidget{
   String _taskid = '768821930';

@@ -1,5 +1,5 @@
 import 'package:multiselect_formfield/multiselect_formfield.dart';
-import 'package:scheduler/Task.dart';
+import 'package:scheduler/task.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -57,10 +57,10 @@ class TaskState extends State<TaskForm> {
     }
     else{
       title = 'Edit Task';
-      taskname = this._thisTask.taskname;
-      taskdesc = this._thisTask.taskdesc;
-      assignedto = this._thisTask.assignedto;
-      cclist = this._thisTask.cclist;
+      taskname = this._thisTask._taskname;
+      taskdesc = this._thisTask._taskdesc;
+      assignedto = this._thisTask._assignedto;
+      cclist = this._thisTask._cclist;
       status = this._thisTask.status;
     }
     return Form(

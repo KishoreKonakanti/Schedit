@@ -2,11 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:scheduler/TaskListing.dart';
 import 'package:scheduler/screens/displaytaskdetails.dart';
-import 'package:scheduler/Task.dart';
-import 'createTask.dart';
-import 'package:scheduler/Users.dart';
 import 'package:contact_picker/contact_picker.dart';
 
 class usermgmt extends StatefulWidget {

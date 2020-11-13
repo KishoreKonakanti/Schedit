@@ -1,15 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:scheduler/edittask.dart';
-import '../Task.dart';
-import 'package:get/get.dart';
+import 'edittask.dart';
+import '../models/task.dart';
 
 class displaytaskdetails extends StatelessWidget{
   Task _task;
 
-  displaytaskdetails(this._task){
-    print('Display Task: Todo'+this._task.cclist.toString());
+  displaytaskdetails(Task task){
+    this._task = task;
   }
 
   Widget styledText(String txt)
@@ -30,6 +29,7 @@ class displaytaskdetails extends StatelessWidget{
     int numDaysLeft = 0;
 
     print('In build function...');
+
     print('CC list:'+this._task.cclist.toString());
     print('Task Name:'+this._task.taskname);
     print('Description:'+this._task.taskdesc);
@@ -78,6 +78,7 @@ class displaytaskdetails extends StatelessWidget{
         });
 
     print('CC Widget built...');
+
     var assignedtext = StreamBuilder(
         stream: FirebaseFirestore.instance.collection('users').
         where('userid', isEqualTo: this._task.assignedto).snapshots(),
@@ -94,8 +95,7 @@ class displaytaskdetails extends StatelessWidget{
     print('All fields available');
 
     // TODO: implement build
-    return MaterialApp(
-      home: Scaffold(
+    return Scaffold(
         bottomNavigationBar: BackButton(
           onPressed: () => Navigator.of(context).pushNamed('/home'),
         ),
@@ -114,7 +114,7 @@ class displaytaskdetails extends StatelessWidget{
                 ccwidget,
                 styledText('Deadline: '+this._task.toDate(deadline).toString()),
                 styledText('# of days left: '+numDaysLeft.toString()+' days'),
-                styledText('Status:'+ _task.statusDefinition(this._task.status)),
+                styledText('Status:'+ ((numDaysLeft>=1)?_task.statusDefinition(this._task.status):'EXPIRED')),
                 Center(
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -142,9 +142,7 @@ class displaytaskdetails extends StatelessWidget{
             ),
           ),
         ),
-      ),
-    )
-    ;
+      );
   }
 
 }

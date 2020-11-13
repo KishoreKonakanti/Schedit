@@ -1,12 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/rendering.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:scheduler/TaskListing.dart';
+import 'package:scheduler/listtasks.dart';
 import 'package:searchable_dropdown/searchable_dropdown.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'Task.dart';
+import 'task.dart';
 // import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 
@@ -32,11 +32,11 @@ class edittaskform extends State<edittask>{
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
-    String taskname = this._thistask.taskname;
-    String taskdesc = this._thistask.taskdesc;
-    String assignedto = this._thistask.assignedto;
-    List<String> cclist = this._thistask.cclist;
-    DateTime current_deadline = this._thistask.dline;
+    String taskname = this._thistask._taskname;
+    String taskdesc = this._thistask._taskdesc;
+    String assignedto = this._thistask._assignedto;
+    List<String> cclist = this._thistask._cclist;
+    DateTime current_deadline = this._thistask._dline;
     int status = this._thistask.status;
 
     TextEditingController tasknamectrl;

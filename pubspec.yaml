@@ -29,7 +29,7 @@ dependencies:
   font_awesome_flutter: ^8.10.0
   intl: ^0.16.1
   contact_picker:
-  get: ^3.16.0
+  shared_preferences:
 
   flutter:
     sdk: flutter
