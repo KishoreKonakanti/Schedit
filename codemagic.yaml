@@ -6,8 +6,8 @@ workflows:
         name: iOS App
         environment:
             vars:
-                XCODE_WORKSPACE: "{{ Sigmalytics }}"
-                XCODE_SCHEME: "{{ Task_Scheduler }}"
+                XCODE_WORKSPACE: "Sigmalytics"
+                XCODE_SCHEME: "Task_Scheduler"
             xcode: latest
             cocoapods: default
         scripts:
